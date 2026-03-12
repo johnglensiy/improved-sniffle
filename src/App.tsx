@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { MapComponent } from './components/Map'
 import { ImageComponent } from './components/ImageComponent'
+import imageDetails from './backend/gps_data.json'
 
 export const DISNEYGUESSR_IMAGE_URLS = [
     "/IMG_7385.jpeg",
@@ -35,35 +36,68 @@ export const DISNEYGUESSR_IMAGE_URLS = [
     "/IMG_7429.jpeg",
   ] as const
 
-export default function App() {
-const [picked, setPicked] = useState<{ lat: number; lng: number } | null>(null)
-const [imageUrl, setImageUrl] = useState<string | null>(null)
-
-const generateRandomUrl = () => {
-    let urlSuffix = DISNEYGUESSR_IMAGE_URLS[Math.floor(Math.random() * DISNEYGUESSR_IMAGE_URLS.length)]
-    setImageUrl(`/disneyguessr_jpgs${urlSuffix}`)
+export type ImageDetail = {
+  file: string
+  lat: number
+  lng: number
+  heading?: number
+  alt?: number
+  time?: string
 }
 
-return (
-<div
-  style={{
-    display: 'flex',
-    flexDirection: 'row',
-    gap: 16,
-    width: '100vw',
-    height: '100vh',
-    padding: 16,
-    overflow: 'hidden',
-  }}
->
-  <div style={{ flex: 1, minWidth: 0, height: '100%', overflow: 'auto' }}>
-    <MapComponent onPick={setPicked} />
-    <pre>{picked ? JSON.stringify(picked, null, 2) : 'Click map to place marker'}</pre>
-  </div>
-  <div style={{ flex: 1, minWidth: 0, height: '100%', overflow: 'auto' }}>
-    <ImageComponent imageUrl={imageUrl}></ImageComponent>
-    <button onClick={generateRandomUrl}>Generate an image {imageUrl}</button>
-  </div>
-</div>
-)
+function getBaseNameFromUrl(url: string): string | null {
+  const withoutQuery = url.split('?')[0]
+  const parts = withoutQuery.split('/')
+  const filename = parts[parts.length - 1]
+  if (!filename) return null
+  const dot = filename.lastIndexOf('.')
+  return dot >= 0 ? filename.slice(0, dot) : filename
+}
+
+function getBaseNameFromFile(file: string): string {
+  const dot = file.lastIndexOf('.')
+  return dot >= 0 ? file.slice(0, dot) : file
+}  
+
+export default function App() {
+  const [picked, setPicked] = useState<{ lat: number; lng: number } | null>(null)
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+
+  const generateRandomUrl = () => {
+      let urlSuffix = DISNEYGUESSR_IMAGE_URLS[Math.floor(Math.random() * DISNEYGUESSR_IMAGE_URLS.length)]
+      setImageUrl(`/disneyguessr_jpgs${urlSuffix}`)
+  }
+
+  const base = imageUrl ? getBaseNameFromUrl(imageUrl) : null
+  const details = base
+    ? (imageDetails as ImageDetail[]).find((d) => getBaseNameFromFile(d.file) === base)
+    : undefined
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 16,
+        width: '100vw',
+        height: '100vh',
+        padding: 16,
+        overflow: 'hidden',
+      }}
+    >
+      <div style={{ flex: 1, minWidth: 0, height: '100%', overflow: 'auto' }}>
+        <MapComponent onPick={setPicked} />
+        <pre>{picked ? JSON.stringify(picked, null, 2) : 'Click map to place marker'}</pre>
+      </div>
+      <div style={{ flex: 1, minWidth: 0, height: '100%', overflow: 'auto' }}>
+        <ImageComponent 
+          imageUrl={imageUrl}
+          imageDetails={details} 
+          base={base}
+        >
+        </ImageComponent>
+        <button onClick={generateRandomUrl}>Generate an image {imageUrl}</button>
+      </div>
+    </div>
+  )
 }
