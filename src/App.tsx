@@ -57,7 +57,32 @@ function getBaseNameFromUrl(url: string): string | null {
 function getBaseNameFromFile(file: string): string {
   const dot = file.lastIndexOf('.')
   return dot >= 0 ? file.slice(0, dot) : file
-}  
+}
+
+function r2Distance(
+  a: { lat: number; lng: number } | null,
+  b: { lat: number; lng: number } | null,
+): number | null {
+  if (!a || !b) return null
+  const dLat = a.lat - b.lat
+  const dLng = a.lng - b.lng
+  return dLat * dLat + dLng * dLng
+}
+
+function maxR2AcrossDetails(all: ImageDetail[]): number {
+  let max = 0
+  for (let i = 0; i < all.length; i += 1) {
+    for (let j = i + 1; j < all.length; j += 1) {
+      const dLat = all[i]!.lat - all[j]!.lat
+      const dLng = all[i]!.lng - all[j]!.lng
+      const r2 = dLat * dLat + dLng * dLng
+      if (r2 > max) max = r2
+    }
+  }
+  return max
+}
+
+const MAX_R2_WITHIN_DISNEYLAND = maxR2AcrossDetails(imageDetails as ImageDetail[])
 
 export default function App() {
   const [picked, setPicked] = useState<{ lat: number; lng: number } | null>(null)
@@ -88,6 +113,28 @@ export default function App() {
       <div style={{ flex: 1, minWidth: 0, height: '100%', overflow: 'auto' }}>
         <MapComponent onPick={setPicked} />
         <pre>{picked ? JSON.stringify(picked, null, 2) : 'Click map to place marker'}</pre>
+        <div
+          style={{
+            marginTop: 8,
+            padding: 8,
+            background: '#111',
+            color: '#eee',
+            borderRadius: 4,
+          }}
+        >
+          {picked && details
+            ? (() => {
+                const r2 = r2Distance(picked, { lat: details.lat, lng: details.lng })
+                if (r2 == null || MAX_R2_WITHIN_DISNEYLAND === 0) {
+                  return 'Score: unavailable'
+                }
+                const clamped = Math.min(r2, MAX_R2_WITHIN_DISNEYLAND)
+                const normalized = 1 - clamped / MAX_R2_WITHIN_DISNEYLAND
+                const score = Math.round(normalized * 1000)
+                return `Score: ${score} / 1000 (r² = ${r2.toExponential(6)})`
+              })()
+            : 'Score: pick a map location and image'}
+        </div>
       </div>
       <div style={{ flex: 1, minWidth: 0, height: '100%', overflow: 'auto' }}>
         <ImageComponent 
