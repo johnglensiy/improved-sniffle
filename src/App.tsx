@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { MapComponent } from './components/Map'
 import { ImageComponent } from './components/ImageComponent'
 import imageDetails from './backend/gps_data.json'
+import { socket } from './socket.ts'
 
 export const DISNEYGUESSR_IMAGE_URLS = [
     "/IMG_7385.jpeg",
