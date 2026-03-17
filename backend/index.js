@@ -28,6 +28,10 @@ app.get('*', (req, res) => {
 
 io.on('connection', (socket) => {
     console.log('a user connected');
+    socket.on('submit-guess', (guess) => {
+        console.log(guess)
+        io.emit('broadcast-guess', guess)
+    });
 });
 
 server.listen(PORT, () => {

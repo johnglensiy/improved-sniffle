@@ -100,6 +100,11 @@ export default function App() {
     ? (imageDetails as ImageDetail[]).find((d) => getBaseNameFromFile(d.file) === base)
     : undefined
 
+  function onSubmitGuess() {
+    if (!picked) return;
+    socket.emit('submit-guess', picked);
+  }
+
   useEffect(() => {
     function onConnect() {
       setIsConnected(true);
@@ -109,12 +114,18 @@ export default function App() {
       setIsConnected(false);
     }
 
+    function onGuessSubmitted(guess: { lat: number, lng: number }) {
+      console.log('a guess was submitted', guess);
+    }
+
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
+    socket.on('broadcast-guess', onGuessSubmitted);
 
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
+      socket.off('broadcast-guess', onGuessSubmitted);
     }
   }, []);
 
@@ -165,6 +176,7 @@ export default function App() {
         </ImageComponent>
         <button onClick={generateRandomUrl}>Generate an image {imageUrl}</button>
         <div>{isConnected ? 'connected' : 'disconnected'}</div>
+        <button onClick={onSubmitGuess}>Submit guess</button>
       </div>
     </div>
   )
