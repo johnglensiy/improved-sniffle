@@ -87,8 +87,9 @@ const MAX_R2_WITHIN_DISNEYLAND = maxR2AcrossDetails(imageDetails as ImageDetail[
 
 export default function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
-  const [picked, setPicked] = useState<{ lat: number; lng: number } | null>(null)
-  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [picked, setPicked] = useState<{ lat: number; lng: number } | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
   const generateRandomUrl = () => {
       let urlSuffix = DISNEYGUESSR_IMAGE_URLS[Math.floor(Math.random() * DISNEYGUESSR_IMAGE_URLS.length)]
@@ -105,6 +106,7 @@ export default function App() {
     socket.emit('submit-guess', picked);
   }
 
+  // socket connections
   useEffect(() => {
     function onConnect() {
       setIsConnected(true);
@@ -127,6 +129,28 @@ export default function App() {
       socket.off('disconnect', onDisconnect);
       socket.off('broadcast-guess', onGuessSubmitted);
     }
+  }, []);
+
+  // timer
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+
+    function onRoundStart({ endTime }: { endTime: number}) {
+      console.log('round start received', endTime);
+      
+      interval = setInterval(() => {
+        const remaining = Math.max(0, endTime - Date.now());
+        setTimeLeft(Math.ceil(remaining / 1000));
+        if (remaining <= 0) clearInterval(interval);
+      }, 500);
+    }
+
+    socket.on('round-start', onRoundStart);
+
+    return () => {
+      socket.off('round-start', onRoundStart);
+      clearInterval(interval);
+    };
   }, []);
 
   return (
@@ -178,6 +202,7 @@ export default function App() {
         <div>{isConnected ? 'connected' : 'disconnected'}</div>
         <button onClick={onSubmitGuess}>Submit guess</button>
       </div>
+      <div>{timeLeft !== null ? `${timeLeft}s` : 'Waiting...'}</div>
     </div>
   )
 }
