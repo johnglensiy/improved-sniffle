@@ -90,6 +90,7 @@ export default function App() {
   const [picked, setPicked] = useState<{ lat: number; lng: number } | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const generateRandomUrl = () => {
       let urlSuffix = DISNEYGUESSR_IMAGE_URLS[Math.floor(Math.random() * DISNEYGUESSR_IMAGE_URLS.length)]
@@ -119,10 +120,15 @@ export default function App() {
     function onGuessSubmitted(guess: { lat: number, lng: number }) {
       console.log('a guess was submitted', guess);
     }
+    
+    function onSetAdmin() {
+      setIsAdmin(true);
+    }
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on('broadcast-guess', onGuessSubmitted);
+    socket.on('set-admin', onSetAdmin);
 
     return () => {
       socket.off('connect', onConnect);
@@ -137,7 +143,7 @@ export default function App() {
 
     function onRoundStart({ endTime }: { endTime: number}) {
       console.log('round start received', endTime);
-      
+
       interval = setInterval(() => {
         const remaining = Math.max(0, endTime - Date.now());
         setTimeLeft(Math.ceil(remaining / 1000));
@@ -201,8 +207,10 @@ export default function App() {
         <button onClick={generateRandomUrl}>Generate an image {imageUrl}</button>
         <div>{isConnected ? 'connected' : 'disconnected'}</div>
         <button onClick={onSubmitGuess}>Submit guess</button>
+        <div>{timeLeft !== null ? `${timeLeft}s` : 'Waiting...'}</div>
+        {isAdmin && <div>You are admin!</div>}
       </div>
-      <div>{timeLeft !== null ? `${timeLeft}s` : 'Waiting...'}</div>
+
     </div>
   )
 }

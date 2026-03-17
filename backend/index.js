@@ -20,6 +20,7 @@ const PORT = Number(process.env.PORT ?? 3000);
 
 const ROUND_DURATION_MS = 60 * 1000;
 let currentEndTime;
+let adminSocketId = null;
 
 // Serve built assets (e.g. /assets/*)
 app.use(express.static(distDir, { index: false }));
@@ -31,7 +32,19 @@ app.get('*', (req, res) => {
 
 io.on('connection', (socket) => {
     console.log('a user connected');
-    socket.emit('round-start', { endTime: currentEndTime })
+    // socket.emit('round-start', { endTime: currentEndTime })
+    if (!adminSocketId) {
+        adminSocketId = socket.id;
+        socket.emit('set-admin');
+    }
+
+    // Next person to connect becomes admin, could be queue
+    socket.on('disconnect', () => {
+        if (socket.id === adminSocketId) {
+            adminSocketId = null;
+        }
+    });
+
     socket.on('submit-guess', (guess) => {
         console.log(guess)
         io.emit('broadcast-guess', guess)
