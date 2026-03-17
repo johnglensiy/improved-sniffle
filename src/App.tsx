@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MapComponent } from './components/Map'
 import { ImageComponent } from './components/ImageComponent'
 import imageDetails from './backend/gps_data.json'
@@ -86,6 +86,7 @@ function maxR2AcrossDetails(all: ImageDetail[]): number {
 const MAX_R2_WITHIN_DISNEYLAND = maxR2AcrossDetails(imageDetails as ImageDetail[])
 
 export default function App() {
+  const [isConnected, setIsConnected] = useState(socket.connected);
   const [picked, setPicked] = useState<{ lat: number; lng: number } | null>(null)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
 
@@ -98,6 +99,24 @@ export default function App() {
   const details = base
     ? (imageDetails as ImageDetail[]).find((d) => getBaseNameFromFile(d.file) === base)
     : undefined
+
+  useEffect(() => {
+    function onConnect() {
+      setIsConnected(true);
+    }
+
+    function onDisconnect() {
+      setIsConnected(false);
+    }
+
+    socket.on('connect', onConnect);
+    socket.on('disconnect', onDisconnect);
+
+    return () => {
+      socket.off('connect', onConnect);
+      socket.off('disconnect', onDisconnect);
+    }
+  }, []);
 
   return (
     <div
@@ -145,6 +164,7 @@ export default function App() {
         >
         </ImageComponent>
         <button onClick={generateRandomUrl}>Generate an image {imageUrl}</button>
+        <div>{isConnected ? 'connected' : 'disconnected'}</div>
       </div>
     </div>
   )
