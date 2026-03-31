@@ -19,6 +19,9 @@ gps_data.json
 
 public/disneyguessr_jpgs
 
+# Claude
+.claude
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
