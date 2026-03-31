@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { MapComponent } from './components/Map'
-import { ImageComponent } from './components/ImageComponent'
 import imageDetails from './backend/gps_data.json'
 import { socket } from './socket.ts'
+import { ImmersiveLayout } from './layouts/ImmersiveLayout'
+import './layouts/immersive.css'
 
 export const DISNEYGUESSR_IMAGE_URLS = [
     "/IMG_7385.jpeg",
@@ -165,58 +165,29 @@ export default function App() {
     };
   }, []);
 
-  return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'row',
-        gap: 16,
-        width: '100vw',
-        height: '100vh',
-        padding: 16,
-        overflow: 'hidden',
-      }}
-    >
-      <div style={{ flex: 1, minWidth: 0, height: '100%', overflow: 'auto' }}>
-        <MapComponent onPick={setPicked} />
-        <pre>{picked ? JSON.stringify(picked, null, 2) : 'Click map to place marker'}</pre>
-        <div
-          style={{
-            marginTop: 8,
-            padding: 8,
-            background: '#111',
-            color: '#eee',
-            borderRadius: 4,
-          }}
-        >
-          {picked && details
-            ? (() => {
-                const r2 = r2Distance(picked, { lat: details.lat, lng: details.lng })
-                if (r2 == null || MAX_R2_WITHIN_DISNEYLAND === 0) {
-                  return 'Score: unavailable'
-                }
-                const clamped = Math.min(r2, MAX_R2_WITHIN_DISNEYLAND)
-                const normalized = 1 - clamped / MAX_R2_WITHIN_DISNEYLAND
-                const score = Math.round(normalized * 1000)
-                return `Score: ${score} / 1000 (r² = ${r2.toExponential(6)})`
-              })()
-            : 'Score: pick a map location and image'}
-        </div>
-      </div>
-      <div style={{ flex: 1, minWidth: 0, height: '100%', overflow: 'auto' }}>
-        <ImageComponent 
-          imageUrl={imageUrl}
-          imageDetails={details} 
-          base={base}
-        >
-        </ImageComponent>
-        <button onClick={generateRandomUrl}>Generate an image {imageUrl}</button>
-        <div>{isConnected ? 'connected' : 'disconnected'}</div>
-        <button onClick={onSubmitGuess}>Submit guess</button>
-        <div>{timeLeft !== null ? `${timeLeft}s` : 'Waiting...'}</div>
-        {isAdmin && <button onClick={triggerRoundStart}>You are admin!</button>}
-      </div>
+  const score: number | null = (() => {
+    if (!picked || !details) return null
+    const r2 = r2Distance(picked, { lat: details.lat, lng: details.lng })
+    if (r2 == null || MAX_R2_WITHIN_DISNEYLAND === 0) return null
+    const clamped = Math.min(r2, MAX_R2_WITHIN_DISNEYLAND)
+    const normalized = 1 - clamped / MAX_R2_WITHIN_DISNEYLAND
+    return Math.round(normalized * 1000)
+  })()
 
-    </div>
+  return (
+    <ImmersiveLayout
+      imageUrl={imageUrl}
+      imageDetails={details}
+      base={base}
+      picked={picked}
+      timeLeft={timeLeft}
+      score={score}
+      isAdmin={isAdmin}
+      isConnected={isConnected}
+      onMapPick={setPicked}
+      onSubmitGuess={onSubmitGuess}
+      onTriggerRoundStart={triggerRoundStart}
+      onGenerateImage={generateRandomUrl}
+    />
   )
 }

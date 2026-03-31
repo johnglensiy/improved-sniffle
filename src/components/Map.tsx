@@ -4,15 +4,23 @@ import 'leaflet/dist/leaflet.css'
 
 type LatLng = { lat: number; lng: number }
 
+interface MapProps {
+  initialCenter?: LatLng
+  initialZoom?: number
+  onPick?: (p: LatLng) => void
+  height?: number | string
+  tileUrl?: string
+  tileAttribution?: string
+}
+
 export function MapComponent({
   initialCenter = { lat: 30, lng: 0 },
   initialZoom = 2,
   onPick,
-}: {
-  initialCenter?: LatLng
-  initialZoom?: number
-  onPick?: (p: LatLng) => void
-}) {
+  height = 500,
+  tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  tileAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+}: MapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<L.Map | null>(null)
   const markerRef = useRef<L.Marker | null>(null)
@@ -26,10 +34,9 @@ export function MapComponent({
       worldCopyJump: true,
     }).setView([initialCenter.lat, initialCenter.lng], initialZoom)
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer(tileUrl, {
       maxZoom: 19,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution: tileAttribution,
     }).addTo(map)
 
     map.on('click', (e) => {
@@ -51,9 +58,9 @@ export function MapComponent({
       mapRef.current = null
       markerRef.current = null
     }
-  }, [initialCenter.lat, initialCenter.lng, initialZoom, onPick])
+  }, [initialCenter.lat, initialCenter.lng, initialZoom, onPick, tileUrl, tileAttribution])
 
-  return <div ref={containerRef} style={{ height: 500, width: '100%' }} />
+  return <div ref={containerRef} style={{ height: height, width: '100%' }} />
 }
 
 export default MapComponent;
