@@ -45,6 +45,14 @@ io.on('connection', (socket) => {
         }
     });
 
+    // admin starts round
+    socket.on('trigger-round-start', () => {
+        console.log("round start triggered")
+        if (socket.id === adminSocketId) {
+            startRound();
+        }
+    });
+
     socket.on('submit-guess', (guess) => {
         console.log(guess)
         io.emit('broadcast-guess', guess)
@@ -65,5 +73,3 @@ function startRound() {
         // Display scores
     }, ROUND_DURATION_MS);
 }
-
-startRound();

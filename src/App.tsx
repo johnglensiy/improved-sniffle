@@ -107,6 +107,11 @@ export default function App() {
     socket.emit('submit-guess', picked);
   }
 
+  function triggerRoundStart() {
+    if (!isAdmin) return;
+    socket.emit('trigger-round-start');
+  }
+
   // socket connections
   useEffect(() => {
     function onConnect() {
@@ -118,7 +123,7 @@ export default function App() {
     }
 
     function onGuessSubmitted(guess: { lat: number, lng: number }) {
-      console.log('a guess was submitted', guess);
+      console.log(`${socket.id} a guess was submitted`, guess);
     }
     
     function onSetAdmin() {
@@ -134,6 +139,7 @@ export default function App() {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
       socket.off('broadcast-guess', onGuessSubmitted);
+      socket.off('set-admin', onSetAdmin);
     }
   }, []);
 
@@ -208,7 +214,7 @@ export default function App() {
         <div>{isConnected ? 'connected' : 'disconnected'}</div>
         <button onClick={onSubmitGuess}>Submit guess</button>
         <div>{timeLeft !== null ? `${timeLeft}s` : 'Waiting...'}</div>
-        {isAdmin && <div>You are admin!</div>}
+        {isAdmin && <button onClick={triggerRoundStart}>You are admin!</button>}
       </div>
 
     </div>
