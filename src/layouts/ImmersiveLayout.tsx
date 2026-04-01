@@ -56,8 +56,8 @@ export function ImmersiveLayout({
           draggable={false}
         />
       ) : (
-        <div className="immersive-bg-placeholder">
-          <span className="immersive-bg-placeholder-text">Disney Guessr</span>
+        <div>
+          {/* <span className="immersive-bg-placeholder-text">Disney Guessr</span> */}
         </div>
       )}
 
@@ -65,8 +65,6 @@ export function ImmersiveLayout({
       <header className="immersive-hud">
         {/* Title */}
         <div className="hud-title">
-          <span className="hud-title-star">✦</span>
-          <span>Disney Guessr</span>
         </div>
 
         {/* Timer */}
@@ -81,7 +79,6 @@ export function ImmersiveLayout({
 
         {/* Score */}
         <div className="hud-score">
-          <span className="hud-score-icon">⭐</span>
           {score !== null ? (
             <>
               <span className="hud-score-value">{score}</span>
