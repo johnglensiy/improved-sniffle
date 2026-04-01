@@ -101,7 +101,6 @@ export function ImmersiveLayout({
       <div className="immersive-map-panel">
         <MapComponent
           onPick={onMapPick}
-          height="100%"
           tileUrl={DARK_TILE_URL}
           tileAttribution={DARK_TILE_ATTRIBUTION}
         />

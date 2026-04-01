@@ -14,8 +14,8 @@ interface MapProps {
 }
 
 export function MapComponent({
-  initialCenter = { lat: 30, lng: 0 },
-  initialZoom = 2,
+  initialCenter = { lat: 33.812, lng: -117.920 },
+  initialZoom = 14.3,
   onPick,
   height = 500,
   tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -29,8 +29,11 @@ export function MapComponent({
     if (!containerRef.current) return
     if (mapRef.current) return // prevent double-init (React StrictMode)
 
+    // ---- Initial map creation ----
     const map = L.map(containerRef.current, {
       zoomControl: true,
+      zoomSnap: 0,
+      zoomDelta: 0.5,
       worldCopyJump: true,
     }).setView([initialCenter.lat, initialCenter.lng], initialZoom)
 
@@ -39,6 +42,7 @@ export function MapComponent({
       attribution: tileAttribution,
     }).addTo(map)
 
+    // ---- Map interaction ----
     map.on('click', (e) => {
       const p = { lat: e.latlng.lat, lng: e.latlng.lng }
 
@@ -60,7 +64,20 @@ export function MapComponent({
     }
   }, [initialCenter.lat, initialCenter.lng, initialZoom, onPick, tileUrl, tileAttribution])
 
-  return <div ref={containerRef} style={{ height: height, width: '100%' }} />
+  // ---- Adjust size on container hover ----
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    const observer = new ResizeObserver(() => {
+      mapRef.current?.invalidateSize()
+    })
+
+    observer.observe(containerRef.current)
+
+    return () => observer.disconnect()
+  }, [])
+
+  return <div ref={containerRef} style={{ height: '100%', width: '100%' }} />
 }
 
 export default MapComponent;
