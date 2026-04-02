@@ -56,8 +56,18 @@ export function ImmersiveLayout({
           draggable={false}
         />
       ) : (
-        <div>
+        <div className="immersive-bg-placeholder">
           {/* <span className="immersive-bg-placeholder-text">Disney Guessr</span> */}
+          <iframe 
+            src="https://www.google.com/maps/embed?pb=!4v1775159887946!6m8!1m7!1s3hvvodaF31BCU7zqxIhj8A!2m2!1d33.81372176740341!2d-117.9204170338743!3f58.825615!4f0!5f0.4000000000000002" 
+            width="600" 
+            height="450" 
+            // style="border:0;" 
+            // allowfullscreen="" 
+            // loading="lazy" 
+            // referrerpolicy="no-referrer-when-downgrade"
+          >
+          </iframe>
         </div>
       )}
 
