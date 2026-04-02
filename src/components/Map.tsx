@@ -8,7 +8,6 @@ interface MapProps {
   initialCenter?: LatLng
   initialZoom?: number
   onPick?: (p: LatLng) => void
-  height?: number | string
   tileUrl?: string
   tileAttribution?: string
 }
@@ -17,7 +16,6 @@ export function MapComponent({
   initialCenter = { lat: 33.812, lng: -117.920 },
   initialZoom = 14.3,
   onPick,
-  height = 500,
   tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
   tileAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 }: MapProps) {

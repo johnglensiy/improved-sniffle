@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import imageDetails from './backend/gps_data.json'
+import imageDetails from '../scripts/gps_data.json'
 import { socket } from './socket.ts'
 import { ImmersiveLayout } from './layouts/ImmersiveLayout'
 import './layouts/immersive.css'
