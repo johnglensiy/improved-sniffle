@@ -116,15 +116,27 @@ export function ImmersiveLayout({
         />
       </div>
 
-      {/* ── Submit guess button (bottom-center) ── */}
-      <div className="immersive-submit">
-        <button
-          onClick={onSubmitGuess}
-          disabled={!picked || !hasTimer}
-          aria-label="Submit your guess"
-        >
-          Submit Guess ▶
-        </button>
+      {/* ── Bottom action buttons ── */}
+      <div className="immersive-submit-bar">
+        <div className="immersive-submit">
+          <button
+            onClick={onSubmitGuess}
+            // disabled={!picked || !hasTimer}
+            aria-label="Submit your guess"
+          >
+            Submit Guess ▶
+          </button>
+        </div>
+
+        <div className="immersive-submit">
+          <button
+            onClick={onSubmitGuess}
+            // disabled={!picked || !hasTimer}
+            aria-label="Submit your guess"
+          >
+            Generate New Image
+          </button>
+        </div>
       </div>
 
       {/* ── Admin gear button (bottom-left) ── */}

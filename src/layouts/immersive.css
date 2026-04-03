@@ -231,13 +231,19 @@ body,
   background: #1a1a2e;
 }
 
-/* ─── Submit Button ─────────────────────────────────────────────── */
-.immersive-submit {
+/* ─── Submit Buttons Bar ────────────────────────────────────────── */
+.immersive-submit-bar {
   position: fixed;
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 20;
+  display: flex;
+  gap: 12px;
+}
+
+.immersive-submit {
+  /* flows inside .immersive-submit-bar */
 }
 
 .immersive-submit button {
